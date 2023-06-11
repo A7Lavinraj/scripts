@@ -16,7 +16,7 @@ def make_samples(): # for wirting samples in file
 
     if len(sample_list) == 2:
 
-        with open("input.txt", "a") as file: # start appending testcases line by line (input samples)
+        with open("in", "a") as file: # start appending testcases line by line (input samples)
             for input_samples in sample_list[0]:
                 for line in input_samples:
                     file.write(line)
@@ -25,28 +25,32 @@ def make_samples(): # for wirting samples in file
 
             file.write("\n")
 
-        with open("expected.txt", "a") as file: # start appending testcases line by line (output samples)
+        with open("exp", "a") as file: # start appending testcases line by line (output samples)
 
             for output_samples in sample_list[1]:
-                file.write(output_samples.text)
+                file.write(output_samples)
 
     else:
 
         for index in range(0, len(sample_list), 2): # start appending testcases line by line (input samples)
-            with open(f"in{int(index / 2) + 1}.txt", "a") as file:
+            with open(f"in{int(index / 2) + 1}", "a") as file:
                 for input_sample in sample_list[index]:
-                    file.write(input_sample.text)
+                    file.write(input_sample)
 
         for index in range(1, len(sample_list), 2): # start appending testcases line by line (ouput samples)
-            with open(f"out{int(index / 2) + 1}.txt", "a") as file:
+            with open(f"out{int(index / 2) + 1}", "a") as file:
                 for output_sample in sample_list[index]:
-                    file.write(output_sample.text)
+                    file.write(output_sample.txt)
 
 def fetch_sample_testcases():
     if response.status_code != 200:
         print('Failed to fetch problem page.')
         return
     
+    try:
+        subprocess.run("rm in* exp* out*", shell=True)
+    except:
+        pass
     make_samples()
 
 fetch_sample_testcases()
