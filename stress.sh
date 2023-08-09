@@ -21,16 +21,15 @@ def stress_test():
         subprocess.run(f"./{generator} > genOut", shell=True)
         subprocess.run(f"./{brute} < genOut > bruteOut", shell=True)
         subprocess.run(f"./{wrong} < genOut > wrongOut", shell=True)
-        if filecmp.cmp("bruteOut", "wrongOut"):
-            print(Fore.GREEN + f"test {it + 1} passed")
-        else:
+        if not filecmp.cmp("bruteOut", "wrongOut"):
             print(Fore.BLUE + "\ntest failed on input:" + Fore.WHITE)
             subprocess.run("cat genOut", shell=True)
             print(Fore.GREEN + "\n\nbrute solution output:" + Fore.WHITE)
             subprocess.run("cat bruteOut", shell=True)
             print(Fore.RED + "\nwrong solution output:" + Fore.WHITE)
             subprocess.run("cat wrongOut", shell=True)
-            break
+            return
+    print(Fore.GREEN + f"{iterations} tests passed")
             
 
 
