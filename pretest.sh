@@ -1,61 +1,66 @@
-#!/bin/python3
+#!/bin/bash
 
-import os
-import sys
-import subprocess
-import re
-import glob
-import time
-from colorama import Fore
+TEST_FILE=$1
+TEST_FILE="${TEST_FILE%.*}"
 
-filename, extension = os.path.splitext(sys.argv[1])
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+BLACK='\033[0;30m'
 
-def run_samples():
-    subprocess.run(f"g++ -std=c++20 {filename}.cpp -o {filename}.exe", shell=True)
+BG_RED='\033[41m'
+BG_GREEN='\033[42m' 
 
-    number_of_pretests = len(glob.glob(f"{filename}*.in"))
-    print(f"[ Running samples for {sys.argv[1]} ]")
+NC='\033[0m'
 
-    passed = 0
-    failed = 0
-    total_time = 0
-    time_ptr = 0
-    for index in range(number_of_pretests):
-        print(f"Input for sample-{index + 1}:")
-        subprocess.run(f"cat {filename}{index + 1}.in | grep -v '^[[:space:]]*$'", shell=True)
-        print("---------------------")
 
-        time_ptr = time.time()
-        subprocess.run(f"./{filename}.exe < {filename}{index + 1}.in > {filename}.out", shell=True)
-        total_time = total_time + time.time() - time_ptr
+function compile_file() {
+  g++ -std=c++20 $TEST_FILE.cpp -o $TEST_FILE.exe
+}
 
-        with open(f"{filename}.out") as out, open(f"{filename}{index + 1}.exp") as exp:
-            out_text = out.read()
-            exp_text = exp.read()
-            out_text = re.sub(r'\s+', ' ', out_text).strip()
-            exp_text = re.sub(r'\s+', ' ', exp_text).strip()
+function output_to_file() {
+  ./$TEST_FILE.exe < $1 > $TEST_FILE.out
+}
 
-        print(f"Output for sample-{index + 1}:")
-        subprocess.run(f"cat {filename}.out | grep -v '^[[:space:]]*$'", shell=True)
-        print("---------------------")
-        print(f"Expected for sample-{index + 1}:")
-        subprocess.run(f"cat {filename}{index + 1}.exp | grep -v '^[[:space:]]*$'", shell=True)
-        print("---------------------")
+function pretest() {
+  compile_file
 
-        if out_text == exp_text:
-            passed += 1
-        else:
-            failed += 1;
+  SAMPLES=($TEST_FILE*.in)
+  LENGTH=${#SAMPLES[@]}
+  TEST_PASSED=0
 
-    print(f"Finished in {total_time} sec.")
-    if failed == 0:
-        print(Fore.GREEN + "Passed:")
-        print(f"({passed} / {number_of_pretests}) pretests passed" + Fore.WHITE)
-        subprocess.run(f"cat {sys.argv[1]}| xclip -selection clipboard", shell=True)
-    else:
-        print(Fore.RED + "Failed")
-        print(f"({passed} / {number_of_pretests}) pretests passed" + Fore.WHITE)
-try:
-    run_samples()
-except:
-    exit()
+  echo "------------------"
+  for ((i = 1; i <= LENGTH; i++));
+  do
+    output_to_file $TEST_FILE$i.in
+
+    echo "Input-$i:"
+    cat $TEST_FILE$i.in | grep -v '^[[:space:]]*$'
+    echo "------------------"
+
+    echo "Output-$i:"
+    cat $TEST_FILE.out | grep -v '^[[:space:]]*$'
+    echo "------------------"
+
+    echo "Expected-$i:"
+    cat $TEST_FILE$i.exp | grep -v '^[[:space:]]*$'
+    echo "------------------"
+
+    if diff -B -w $TEST_FILE.out $TEST_FILE$i.exp > /dev/null; then
+      ((TEST_PASSED++))
+    fi
+  done
+
+  if [ $TEST_PASSED -eq $LENGTH ]; then
+    echo -e "$BLACK$BG_GREEN\r PASSED $NC\n"
+    echo -e "$GREEN($TEST_PASSED / $LENGTH) PRETEST PASSED$NC\n"
+  else
+    echo -e "$BLACK$BG_RED\r FAILED $NC\n"
+    echo -e "$RED($TEST_PASSED / $LENGTH) PRETEST PASSED$NC\n"
+  fi
+
+}
+
+cat "$TEST_FILE.cpp" | xclip -selection clipboard
+
+pretest
