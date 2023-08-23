@@ -29,22 +29,21 @@ function pretest() {
   LENGTH=${#SAMPLES[@]}
   TEST_PASSED=0
 
-  echo "------------------"
   for ((i = 1; i <= LENGTH; i++));
   do
     output_to_file $TEST_FILE$i.in
 
     echo "Input-$i:"
     cat $TEST_FILE$i.in | grep -v '^[[:space:]]*$'
-    echo "------------------"
+    echo "----------------------"
 
     echo "Output-$i:"
     cat $TEST_FILE.out | grep -v '^[[:space:]]*$'
-    echo "------------------"
+    echo "----------------------"
 
     echo "Expected-$i:"
     cat $TEST_FILE$i.exp | grep -v '^[[:space:]]*$'
-    echo "------------------"
+    echo "----------------------"
 
     if diff -B -w $TEST_FILE.out $TEST_FILE$i.exp > /dev/null; then
       ((TEST_PASSED++))
@@ -52,11 +51,11 @@ function pretest() {
   done
 
   if [ $TEST_PASSED -eq $LENGTH ]; then
-    echo -e "$BLACK$BG_GREEN\r PASSED $NC\n"
-    echo -e "$GREEN($TEST_PASSED / $LENGTH) PRETEST PASSED$NC\n"
+    echo -e "VERDICT: $BLACK$BG_GREEN PASSED $NC\n"
+    echo -e "$GREEN($TEST_PASSED / $LENGTH) PRETEST PASSED$NC"
   else
-    echo -e "$BLACK$BG_RED\r FAILED $NC\n"
-    echo -e "$RED($TEST_PASSED / $LENGTH) PRETEST PASSED$NC\n"
+    echo -e "VERDICT: $BLACK$BG_RED FAILED $NC\n"
+    echo -e "$RED($TEST_PASSED / $LENGTH) PRETEST PASSED$NC"
   fi
 
 }
