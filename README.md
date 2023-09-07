@@ -68,13 +68,13 @@ Replace _<script_name>_ with your name of script.
     - To fetch a contest.
 
       ```bash
-      ./codeforces_sample_gen.sh -c <CONTEST_ID> A B C D ...
+      ./codeforces_sample_gen.sh contest <CONTEST_ID>
       ```
 
     - To fetch a problem.
 
       ```bash
-      ./codeforces_sample_gen.sh -p <PROBLEM1> <PROBLEM2> ...
+      ./codeforces_sample_gen.sh problem <PROBLEM1> <PROBLEM2> ...
       ```
 
 - **codechef_sample_gen.py**
@@ -86,13 +86,13 @@ Replace _<script_name>_ with your name of script.
       - To fetch a contest.
 
         ```bash
-        ./codeforces_sample_gen.sh -c <CONTEST_ID> A B C D ...
+        python3 codeforces_sample_gen.py contest <CONTEST_ID>
         ```
 
       - To fetch a problem.
 
         ```bash
-        ./codeforces_sample_gen.sh -p <PROBLEM1> <PROBLEM2> ...
+        python3 codeforces_sample_gen.py problem <PROBLEM1> <PROBLEM2> ...
         ```
 
     - for WINDOWS users.
@@ -100,13 +100,13 @@ Replace _<script_name>_ with your name of script.
       - To fetch a contest.
 
         ```powershell
-        ./codeforces_sample_gen.sh -c <CONTEST_ID> A B C D ...
+        python codeforces_sample_gen.py contest <CONTEST_ID>
         ```
 
       - To fetch a problem.
 
         ```powershell
-        codeforces_sample_gen.sh -p <PROBLEM1> <PROBLEM2> ...
+        python codeforces_sample_gen.py problem <PROBLEM1> <PROBLEM2> ...
         ```
 
 - **dbrun.sh**
