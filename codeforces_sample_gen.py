@@ -88,7 +88,7 @@ if __name__ == "__main__":
     elif MODE == "problem":
         for index, problem in enumerate(sys.argv[2:]):
             url = f"https://codeforces.com/contest/{problem[:-1]}/problem/{problem[-1]}"
-            fetch_problem(url, problem[-1])
+            fetch_problem(url, chr(ord('A') + index))
             progress_bar(index + 1, len(sys.argv[2:]))
 
     else:
