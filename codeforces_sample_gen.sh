@@ -1,61 +1,97 @@
 #!/bin/python3
 
-import sys
 import requests
+import re
+import sys
+from colorama import Fore
 from bs4 import BeautifulSoup
 
-def fetch_samples(url, filename):
+def progress_bar(progress, total):
+    percent = progress / total * 20
+    print(Fore.YELLOW + "fetching problems | " + '\u2588' * int(percent) + " " * (20 - int(percent)) + f"| {progress} out of {total} problems fetched", end='\r')
+    if int(percent) == 20:
+        print(Fore.GREEN + "fetching problems | " + '\u2588' * int(percent) + " " * (20 - int(percent)),  f"| {progress} out of {total} problems fetched" + Fore.WHITE)
 
-    print(f"fetching samples from {url}")
+def problem_set(url):
     response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    sample_list = soup.find_all('pre')
+    HTML = BeautifulSoup(response.text, "html.parser")
+    HTML = HTML.find_all('td', class_="id")
 
-    if len(sample_list) == 2:
+    problem_id = []
+    for id in HTML:
+        problem_id.append(re.sub(r'\s+', ' ', id.find('a').text).strip())
 
-        print(f"Writing input samples in {filename}1.in")
-        with open(f"{filename}1.in", "w") as file:
-            for input_samples in sample_list[0]:
-                for line in input_samples:
-                    file.write(line)
+    return problem_id
 
-                file.write("\n")
+def create_sample_files(input, output, problem_id):
+    with open(f"{problem_id}.in", 'w') as input_file:
+        input_file.write(input)
+    
+    with open(f"{problem_id}.exp", 'w') as output_file:
+        output_file.write(output)
 
-            file.write("\n")
 
-        print(f"Writing expected samples in {filename}1.exp")
-        with open(f"{filename}1.exp", "w") as file:
+def fetch_problem(url, problem_id):
+    response = requests.get(url)
+    HTML = BeautifulSoup(response.text, "html.parser")
 
-            for output_samples in sample_list[1]:
-                file.write(output_samples)
+    number_of_testcase = len(HTML.find_all('div', class_="input"))
+
+    if (number_of_testcase == 1):
+        input = ""
+        for test in HTML.find_all('div', class_="input"):
+            input = ""
+            if HTML.find('div', class_='test-example-line') == None:
+                input += test.find('pre').text
+            else:
+                for line in HTML.find_all('div', class_='test-example-line'):
+                    input += line.text + '\n'
+
+        output = ""
+        for test in HTML.find_all('div', class_="output"):
+            for line in test.find_all('pre'):
+                output += line.text
+
+        create_sample_files(input, output, problem_id + "1")
 
     else:
+        input_list = []
+        output_list = []
 
-        for index in range(0, len(sample_list), 2):
-            print(f"Writing input samples in {filename}{index}.in")
-            with open(f"{filename}{int(index / 2) + 1}.in", "w") as file:
-                for input_sample in sample_list[index]:
-                    file.write(input_sample)
+        for test in HTML.find_all('div', class_="input"):
+            input = ""
+            for line in test.find_all('pre'):
+                input += line.text + "\n"
 
-        for index in range(1, len(sample_list), 2):
-            print(f"Writing expected samples in {filename}{index}.exp")
-            with open(f"{filename}{int(index / 2) + 1}.exp", "w") as file:
-                for output_sample in sample_list[index]:
-                    file.write(output_sample)
+            input_list.append(input)
 
-try:
+        for test in HTML.find_all('div', class_="output"):
+            output = ""
+            for line in test.find_all('pre'):
+                output += line.text
+
+            output_list.append(output)
+        
+        for test in range(int(number_of_testcase)):
+            create_sample_files(input_list[test], output_list[test], problem_id + f"{test + 1}")
+
+if __name__ == "__main__":
     MODE = sys.argv[1]
 
-    if MODE == "-c":
+    if MODE == "contest":
         contest_id = sys.argv[2]
+        url = f"https://codeforces.com/contest/{contest_id}"
+        problems = problem_set(url)
 
-        for problem in sys.argv[3:]:
-            fetch_samples(f"https://codeforces.com/contest/{contest_id}/problem/{problem}", problem)
-            print("contest...")
+        for index, problem in enumerate(problems):
+            fetch_problem(url + f"/problem/{problem}", problem)
+            progress_bar(index + 1, len(problems))
 
-    elif MODE == "-p":
+    elif MODE == "problem":
         for index, problem in enumerate(sys.argv[2:]):
-            fetch_samples(f"https://codeforces.com/problemset/problem/{problem}", chr(index + ord('A')))
+            url = f"https://codeforces.com/contest/{problem[:-1]}/problem/{problem[-1]}"
+            fetch_problem(url, problem[-1])
+            progress_bar(index + 1, len(sys.argv[2:]))
 
-except:
-    print("Error 404")
+    else:
+        print("Bad arguments please refer to github readme.")

@@ -13,7 +13,6 @@ BG_GREEN='\033[42m'
 
 NC='\033[0m'
 
-
 function compile_file() {
   g++ -std=c++20 $TEST_FILE.cpp -o $TEST_FILE.exe
 }
