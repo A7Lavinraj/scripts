@@ -60,5 +60,6 @@ function pretest() {
 }
 
 cat "$TEST_FILE.cpp" | xclip -selection clipboard
+rm *.exe
 
 pretest

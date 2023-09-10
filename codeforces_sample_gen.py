@@ -34,23 +34,20 @@ def fetch_problem(url, problem_id):
     HTML = BeautifulSoup(response.text, "html.parser")
 
     number_of_testcase = len(HTML.find_all('div', class_="input"))
+    multiple = HTML.find_all('div', class_="test-example-line");
 
-    if (number_of_testcase == 1):
-        input = ""
-        for test in HTML.find_all('div', class_="input"):
-            input = ""
-            if HTML.find('div', class_='test-example-line') == None:
-                input += test.find('pre').text
-            else:
-                for line in HTML.find_all('div', class_='test-example-line'):
+    if (multiple != []):
+        for index, (in_test, out_test) in enumerate(zip(HTML.find_all('div', class_="input"), HTML.find_all('div', class_="output"))):
+            input, output = "", ""
+
+            for pre in in_test.find_all('pre'):
+                for line in pre:
                     input += line.text + '\n'
 
-        output = ""
-        for test in HTML.find_all('div', class_="output"):
-            for line in test.find_all('pre'):
-                output += line.text
+            for pre in out_test.find_all('pre'):
+                output += pre.text + '\n'
 
-        create_sample_files(input, output, problem_id + "1")
+            create_sample_files(input, output, problem_id + f"{index + 1}")
 
     else:
         input_list = []
