@@ -1,65 +1,48 @@
 #!/bin/bash
 
-TEST_FILE=$1
-TEST_FILE="${TEST_FILE%.*}"
-
+# colors.
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 BLACK='\033[0;30m'
-
 BG_RED='\033[41m'
 BG_GREEN='\033[42m' 
-
 NC='\033[0m'
 
-function compile_file() {
-  g++ -std=c++20 $TEST_FILE.cpp -o $TEST_FILE.exe
-}
+sampleList=(${@%.*}-*.in)
+sampleList=("${sampleList[@]%.*}")
+numberOfTests=${#sampleList[@]}
+testPassed=0
 
-function output_to_file() {
-  ./$TEST_FILE.exe < $1 > $TEST_FILE.out
-}
+for sample in ${sampleList[@]};
+do
+  dbrun.sh $1 < $sample.in > $sample.out
+  echo -e "[Running for $sample.in]\n"
 
-function pretest() {
-  compile_file
-
-  SAMPLES=($TEST_FILE*.in)
-  LENGTH=${#SAMPLES[@]}
-  TEST_PASSED=0
-
-  for ((i = 1; i <= LENGTH; i++));
-  do
-    output_to_file $TEST_FILE$i.in
-
+  if diff -B -w $sample.out $sample.exp > /dev/null; then
+    ((testPassed++))
+    echo -e "PRETEST $i: $BLACK$BG_GREEN PASSED $NC\n"
+  else
     echo "Input-$i:"
-    cat $TEST_FILE$i.in | grep -v '^[[:space:]]*$'
+    cat $sample.in | grep -v '^[[:space:]]*$'
     echo "----------------------"
 
     echo "Output-$i:"
-    cat $TEST_FILE.out | grep -v '^[[:space:]]*$'
+    cat $sample.out | grep -v '^[[:space:]]*$'
     echo "----------------------"
 
     echo "Expected-$i:"
-    cat $TEST_FILE$i.exp | grep -v '^[[:space:]]*$'
+    cat $sample.exp | grep -v '^[[:space:]]*$'
     echo "----------------------"
 
-    if diff -B -w $TEST_FILE.out $TEST_FILE$i.exp > /dev/null; then
-      ((TEST_PASSED++))
-    fi
-  done
-
-  if [ $TEST_PASSED -eq $LENGTH ]; then
-    echo -e "VERDICT: $BLACK$BG_GREEN PASSED $NC\n"
-    echo -e "$GREEN($TEST_PASSED / $LENGTH) PRETEST PASSED$NC"
-  else
-    echo -e "VERDICT: $BLACK$BG_RED FAILED $NC\n"
-    echo -e "$RED($TEST_PASSED / $LENGTH) PRETEST PASSED$NC"
+    echo -e "PRETEST $i: $BLACK$BG_RED FAILED $NC\n"
   fi
+done
 
-}
+if [ $testPassed -eq $numberOfTests ]; then
+  echo -e "$GREEN($testPassed / $numberOfTests) PRETEST PASSED$NC"
+else
+  echo -e "$RED($testPassed / $numberOfTests) PRETEST PASSED$NC"
+fi
 
-cat "$TEST_FILE.cpp" | xclip -selection clipboard
-rm *.exe
-
-pretest
+cat "$1" | xclip -selection clipboard

@@ -1,4 +1,4 @@
-#!bin/python3
+#!/bin/python3
 
 import requests
 import re
@@ -49,7 +49,7 @@ def fetch_problem(url, problem_id):
             for pre in out_test.find_all('pre'):
                 output += pre.text + '\n'
 
-            create_sample_files(input, output, problem_id + f"{index + 1}")
+            create_sample_files(input, output, problem_id + f"-{index + 1}")
 
     else:
         input_list = []
@@ -70,7 +70,7 @@ def fetch_problem(url, problem_id):
             output_list.append(output)
         
         for test in range(int(number_of_testcase)):
-            create_sample_files(input_list[test], output_list[test], problem_id + f"{test + 1}")
+            create_sample_files(input_list[test], output_list[test], problem_id + f"-{test + 1}")
 
 if __name__ == "__main__":
     MODE = sys.argv[1]

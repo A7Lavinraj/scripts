@@ -4,4 +4,5 @@ lib/
 *.exe
 *.txt
 *.cfg
+node_modules
 scraping.py

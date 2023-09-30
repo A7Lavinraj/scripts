@@ -56,4 +56,5 @@ function stress_test() {
 }
 
 stress_test
+rm -f *.exe
 echo
