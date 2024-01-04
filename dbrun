@@ -5,23 +5,25 @@ extension="${filename##*.}"
 filename="${filename%.*}"
 
 if [ $extension == cc ]; then
-  g++ -std=c++20 $filename.cc -DDEBUG -o $filename.exe && ./$filename.exe
-  rm $filename.exe
+  g++ -std=c++17 $filename.cc -DDEBUG && ./a.out
 
 elif [ $extension == cpp ]; then
-  g++ -std=c++20 -DDEBUG $filename.cpp -o $filename.exe && ./$filename.exe
-  rm $filename.exe
+  g++ -std=c++17 -DDEBUG $filename.cpp && ./a.out
 
 elif [ $extension == c ]; then
-  gcc $filename.c -DDEBUG -o $filename.exe && ./$filename.exe
-  rm $filename.exe
+  gcc $filename.c -DDEBUG -o && ./a.out
 
 elif [ $extension == py ]; then
   python3 $filename.py
 
 elif [ $extension == rs ]; then
   rustc $filename.rs -o $filename.exe && ./$filename.exe
-  rm $filename.exe
+
+elif [ $extension == go ]; then
+  go run $filename.go
+
+elif [ $extension == java ]; then
+  java $filename.java
 
 else
   echo "NOT! compatible"

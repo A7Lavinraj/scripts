@@ -1,17 +1,20 @@
 import os
-import sys
 import subprocess
+import sys
 
 filename, extension = os.path.splitext(sys.argv[1])
 
-def build():
 
+def build():
     if extension == ".cpp":
         subprocess.run(f"g++ -std=c++20 {filename}.cpp -o {filename}.exe", shell=True)
         subprocess.run(f"./{filename}.exe", shell=True)
 
     elif extension == ".cc":
-        subprocess.run(f"g++ -std=c++20 -Wall -Wextra -Wshadow -D_GLIBCXX_ASSERTIONS -DDEBUG -ggdb3 -fmax-errors=2 {filename}.cc -o {filename}", shell=True)
+        subprocess.run(
+            f"g++ -std=c++20 -Wall -Wextra -Wshadow -D_GLIBCXX_ASSERTIONS -DDEBUG -ggdb3 -fmax-errors=2 {filename}.cc -o {filename}",
+            shell=True,
+        )
         subprocess.run(f"./{filename}.exe", shell=True)
 
     elif extension == ".py":
@@ -26,6 +29,7 @@ def build():
 
     else:
         subprocess.Popen('echo "NOT! compatible"')
+
 
 try:
     build()

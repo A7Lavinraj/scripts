@@ -1,31 +1,48 @@
-import requests
 import re
 import sys
-from colorama import Fore
+
+import requests
 from bs4 import BeautifulSoup
+from colorama import Fore
+
 
 def progress_bar(progress, total):
     percent = progress / total * 20
-    print(Fore.YELLOW + "fetching problems | " + '\u2588' * int(percent) + " " * (20 - int(percent)) + f"| {progress} out of {total} problems fetched", end='\r')
+    print(
+        Fore.YELLOW
+        + "fetching problems | "
+        + "\u2588" * int(percent)
+        + " " * (20 - int(percent))
+        + f"| {progress} out of {total} problems fetched",
+        end="\r",
+    )
     if int(percent) == 20:
-        print(Fore.GREEN + "fetching problems | " + '\u2588' * int(percent) + " " * (20 - int(percent)),  f"| {progress} out of {total} problems fetched" + Fore.WHITE)
+        print(
+            Fore.GREEN
+            + "fetching problems | "
+            + "\u2588" * int(percent)
+            + " " * (20 - int(percent)),
+            f"| {progress} out of {total} problems fetched" + Fore.WHITE,
+        )
+
 
 def problem_set(url):
     response = requests.get(url)
     HTML = BeautifulSoup(response.text, "html.parser")
-    HTML = HTML.find_all('td', class_="id")
+    HTML = HTML.find_all("td", class_="id")
 
     problem_id = []
     for id in HTML:
-        problem_id.append(re.sub(r'\s+', ' ', id.find('a').text).strip())
+        problem_id.append(re.sub(r"\s+", " ", id.find("a").text).strip())
 
     return problem_id
 
+
 def create_sample_files(input, output, problem_id):
-    with open(f"{problem_id}.in", 'w') as input_file:
+    with open(f"{problem_id}.in", "w") as input_file:
         input_file.write(input)
-    
-    with open(f"{problem_id}.exp", 'w') as output_file:
+
+    with open(f"{problem_id}.exp", "w") as output_file:
         output_file.write(output)
 
 
@@ -33,19 +50,24 @@ def fetch_problem(url, problem_id):
     response = requests.get(url)
     HTML = BeautifulSoup(response.text, "html.parser")
 
-    number_of_testcase = len(HTML.find_all('div', class_="input"))
-    multiple = HTML.find_all('div', class_="test-example-line");
+    number_of_testcase = len(HTML.find_all("div", class_="input"))
+    multiple = HTML.find_all("div", class_="test-example-line")
 
-    if (multiple != []):
-        for index, (in_test, out_test) in enumerate(zip(HTML.find_all('div', class_="input"), HTML.find_all('div', class_="output"))):
+    if multiple != []:
+        for index, (in_test, out_test) in enumerate(
+            zip(
+                HTML.find_all("div", class_="input"),
+                HTML.find_all("div", class_="output"),
+            )
+        ):
             input, output = "", ""
 
-            for pre in in_test.find_all('pre'):
+            for pre in in_test.find_all("pre"):
                 for line in pre:
-                    input += line.text + '\n'
+                    input += line.text + "\n"
 
-            for pre in out_test.find_all('pre'):
-                output += pre.text + '\n'
+            for pre in out_test.find_all("pre"):
+                output += pre.text + "\n"
 
             create_sample_files(input, output, problem_id + f"{index + 1}")
 
@@ -53,22 +75,25 @@ def fetch_problem(url, problem_id):
         input_list = []
         output_list = []
 
-        for test in HTML.find_all('div', class_="input"):
+        for test in HTML.find_all("div", class_="input"):
             input = ""
-            for line in test.find_all('pre'):
+            for line in test.find_all("pre"):
                 input += line.text + "\n"
 
             input_list.append(input)
 
-        for test in HTML.find_all('div', class_="output"):
+        for test in HTML.find_all("div", class_="output"):
             output = ""
-            for line in test.find_all('pre'):
+            for line in test.find_all("pre"):
                 output += line.text
 
             output_list.append(output)
-        
+
         for test in range(int(number_of_testcase)):
-            create_sample_files(input_list[test], output_list[test], problem_id + f"{test + 1}")
+            create_sample_files(
+                input_list[test], output_list[test], problem_id + f"{test + 1}"
+            )
+
 
 if __name__ == "__main__":
     MODE = sys.argv[1]
@@ -85,7 +110,7 @@ if __name__ == "__main__":
     elif MODE == "problem":
         for index, problem in enumerate(sys.argv[2:]):
             url = f"https://codeforces.com/contest/{problem[:-1]}/problem/{problem[-1]}"
-            fetch_problem(url, chr(ord('A') + index))
+            fetch_problem(url, chr(ord("A") + index))
             progress_bar(index + 1, len(sys.argv[2:]))
 
     else:

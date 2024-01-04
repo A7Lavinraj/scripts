@@ -11,9 +11,9 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 function compiling_files() {
-  g++ -std=c++20 $WRONG_FILE.cpp -o $WRONG_FILE.exe
-  g++ -std=c++20 $BRUTE_FILE.cpp -o $BRUTE_FILE.exe
-  g++ -std=c++20 $GENERATOR_FILE.cpp -o $GENERATOR_FILE.exe
+  g++ -std=c++17 $WRONG_FILE.cpp -o $WRONG_FILE.exe
+  g++ -std=c++17 $BRUTE_FILE.cpp -o $BRUTE_FILE.exe
+  g++ -std=c++17 $GENERATOR_FILE.cpp -o $GENERATOR_FILE.exe
 }
 
 function generate_input() {

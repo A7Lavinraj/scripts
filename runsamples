@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# colors.
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+BLACK='\033[0;30m'
+BG_RED='\033[41m'
+BG_GREEN='\033[42m'
+NC='\033[0m'
+
+sampleList=(${@%.*}-*.in)
+sampleList=("${sampleList[@]%.*}")
+numberOfTests=${#sampleList[@]}
+testPassed=0
+
+function compile() {
+	filename=$(basename -- "$1")
+	extension="${filename##*.}"
+	filename="${filename%.*}"
+
+	if [ $extension == cc ]; then
+		g++ -std=c++17 $filename.cc
+
+	elif [ $extension == cpp ]; then
+		g++ -std=c++17 $filename.cpp
+
+	elif [ $extension == c ]; then
+		gcc $filename.c
+
+	elif [ $extension == py ]; then
+		return
+
+	elif [ $extension == java ]; then
+		return
+
+	elif [ $extension == go ]; then
+		return
+
+	elif [ $extension == rs ]; then
+		rustc $filename.rs -o $filename
+
+	else
+		echo "NOT! compatible for given filetype"
+		exit 0
+	fi
+}
+
+function execute() {
+	filename=$(basename -- "$1")
+	extension="${filename##*.}"
+	filename="${filename%.*}"
+
+	if [ $extension == cc ]; then
+		./a.out
+
+	elif [ $extension == cpp ]; then
+		./a.out
+
+	elif [ $extension == c ]; then
+		./a.out
+
+	elif [ $extension == py ]; then
+		python3 $filename.py
+
+	elif [ $extension == go ]; then
+		go run $filename.go
+
+	elif [ $extension == java ]; then
+		java $filename.java
+
+	elif [ $extension == rs ]; then
+		./$filename
+
+	else
+		echo "NOT! compatible for given filetype"
+		exit 0
+	fi
+}
+
+compile $1
+
+for sample in ${sampleList[@]}; do
+	execute $1 <$sample.in >$sample.out
+	echo -e "[Running for $sample.in]\n"
+
+	if diff -B -w $sample.out $sample.exp >/dev/null; then
+		((testPassed++))
+		echo -e "PRETEST $i: $BLACK$BG_GREEN PASSED $NC\n"
+	else
+		echo "Input-$i:"
+		cat $sample.in | grep -v '^[[:space:]]*$'
+		echo "----------------------"
+
+		echo "Output-$i:"
+		cat $sample.out | grep -v '^[[:space:]]*$'
+		echo "----------------------"
+
+		echo "Expected-$i:"
+		cat $sample.exp | grep -v '^[[:space:]]*$'
+		echo "----------------------"
+
+		echo -e "PRETEST $i: $BLACK$BG_RED FAILED $NC\n"
+	fi
+done
+
+if [ $testPassed -eq $numberOfTests ]; then
+	echo -e "$GREEN($testPassed / $numberOfTests) PRETEST PASSED$NC"
+else
+	echo -e "$RED($testPassed / $numberOfTests) PRETEST PASSED$NC"
+fi

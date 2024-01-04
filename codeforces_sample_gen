@@ -1,10 +1,11 @@
 #!/bin/python3
 
-import requests
-import re
-import sys
 from colorama import Fore
+import re
 from bs4 import BeautifulSoup
+import sys
+import os
+import requests
 
 def progress_bar(progress, total):
     percent = progress / total * 20
@@ -74,6 +75,8 @@ def fetch_problem(url, problem_id):
 
 if __name__ == "__main__":
     MODE = sys.argv[1]
+
+    os.system("rm -f *.in *.exp")
 
     if MODE == "contest":
         contest_id = sys.argv[2]
